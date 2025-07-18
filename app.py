@@ -78,7 +78,7 @@ df["Total"] = df["Quantidade"] * df["VALOR"]
 
 
 total = df["Total"].sum()
-col3.metric(label="Total", value=f"R$ {round(total, 2)}")
+col2.metric(label="Total", value=f"R$ {round(total, 2)}")
 
 df.columns = ["Data", "Requisição", "SKU", "Quantidade", "Pedido", "Valor", "Total"]
 ordem_colunas = ["Data", "Pedido", "Requisição", "SKU", "Quantidade", "Valor", "Total"]
