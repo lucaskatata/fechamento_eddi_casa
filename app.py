@@ -84,6 +84,12 @@ df.columns = ["Data", "Requisição", "SKU", "Quantidade", "Pedido", "Valor", "T
 ordem_colunas = ["Data", "Pedido", "Requisição", "SKU", "Quantidade", "Valor", "Total"]
 df = df[ordem_colunas]
 df = df.set_index(df["Data"]).drop(columns="Data")
-st.dataframe(df)
+
+columns_config = {
+    "Valor": st.column_config.NumberColumn("Valor", format="R$ %.2f"),
+    "Total": st.column_config.NumberColumn("Total", format="R$ %.2f"),
+}
+
+st.dataframe(df, column_config=columns_config)
 
 # %%
