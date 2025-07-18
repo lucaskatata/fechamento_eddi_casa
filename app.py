@@ -83,4 +83,7 @@ col3.metric(label="Total", value=f"R$ {round(total, 2)}")
 df.columns = ["Data", "Requisição", "SKU", "Quantidade", "Pedido", "Valor", "Total"]
 ordem_colunas = ["Data", "Pedido", "Requisição", "SKU", "Quantidade", "Valor", "Total"]
 df = df[ordem_colunas]
+df = df.set_index(df["Data"]).drop(columns="Data")
 st.dataframe(df)
+
+# %%
