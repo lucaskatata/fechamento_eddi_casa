@@ -80,4 +80,8 @@ df["Total"] = df["Quantidade"] * df["VALOR"]
 total = df["Total"].sum()
 st.text(f"R$ {round(total, 2)}")
 
+df.columns = ["Data", "Requisição", "SKU", "Quantidade", "Pedido", "Valor", "Total"]
+ordem_colunas = ["Data", "Pedido", "Requisição", "SKU", "Quantidade", "Valor", "Total"]
+df = df[ordem_colunas]
 st.dataframe(df)
+# %%
