@@ -46,7 +46,7 @@ filtro1 = df["Observações"] == 107
 df = df[filtro1]
 
 # ---------------- FILTRO 2 - Mao de obra -------------
-col1, col2, col3 = st.columns(3)
+col1, col2, col3, col4 = st.columns(4)
 
 mo_quinzena = df["MAXHOME"].unique().tolist()
 mo_quinzena = sorted(mo_quinzena)
@@ -84,4 +84,3 @@ df.columns = ["Data", "Requisição", "SKU", "Quantidade", "Pedido", "Valor", "T
 ordem_colunas = ["Data", "Pedido", "Requisição", "SKU", "Quantidade", "Valor", "Total"]
 df = df[ordem_colunas]
 st.dataframe(df)
-# %%
