@@ -4,6 +4,8 @@ import streamlit as st
 
 st.set_page_config(layout="wide")
 
+st.title(f"Fechamento - Mão de Obra")
+
 url_inicio = "https://docs.google.com/spreadsheets/d/1cGeQrjvsnuj9K1S_uPrYwxDKnUoyHnQEvFJjttU4Pcw/"
 url_fim = "gid=887283048#gid=887283048"
 url = f"{url_inicio}export?format=csv&{url_fim}"
@@ -23,10 +25,12 @@ df_selecionado = df[df["Observações"] == 107]
 # --------------------- filtro para quinzena ----------------
 
 # --------------------- filtro para mao de obra ----------------
+col1, col2, col3, col4, col5, col6, col7 = st.columns(7)
+
 mo_quinzena = df_selecionado["MAXHOME"].unique().tolist()
 mo_quinzena = sorted(mo_quinzena)
 
-mo_selecionada = st.sidebar.selectbox(label="Mão de Obra", options=mo_quinzena)
+mo_selecionada = col1.selectbox(label="Mão de Obra", options=mo_quinzena)
 
 df_final = df_selecionado[df_selecionado["MAXHOME"] == mo_selecionada]
 # --------------------- filtro para mao de obra ----------------
@@ -52,7 +56,6 @@ df_final = df_final.set_index("Data da notinha")
 
 total = df_final["Quantidade"].sum()
 
-st.title(f"Fechamento - {mo_selecionada}")
 
 st.text(f"Quantidade total produzida: {total}")
 
