@@ -78,7 +78,7 @@ df["Total"] = df["Quantidade"] * df["VALOR"]
 
 
 total = df["Total"].sum()
-col2.metric(label="Total", value=f"R$ {round(total, 2)}")
+col2.metric(label="Total", value=f"R$ {total:.2f}")
 
 df.columns = ["Data", "Requisição", "SKU", "Quantidade", "Pedido", "Valor", "Total"]
 ordem_colunas = ["Data", "Pedido", "Requisição", "SKU", "Quantidade", "Valor", "Total"]
@@ -93,3 +93,4 @@ columns_config = {
 st.dataframe(df, column_config=columns_config)
 
 # %%
+print(f"{total:.2f}")
