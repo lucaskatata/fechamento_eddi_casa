@@ -11,6 +11,7 @@ def find_closest_sku(sku, sku_list):
     return matches[0] if matches else None
 
 
+st.set_page_config(layout="wide")
 st.title("Fechamento - Mão de Obra")
 
 url_valores = "https://docs.google.com/spreadsheets/d/1JkafGyVeOQjCvMmePSfrgW3rSrTs6bzcL01G1Spge4s/export?format=csv&gid=2104680401#gid=2104680401"
