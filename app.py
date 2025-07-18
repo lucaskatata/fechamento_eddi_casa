@@ -1,10 +1,22 @@
 # %%
+from difflib import get_close_matches
 import pandas as pd
 import streamlit as st
 
-st.set_page_config(layout="wide")
 
-st.title(f"Fechamento - Mão de Obra")
+def find_closest_sku(sku, sku_list):
+    matches = get_close_matches(
+        sku, sku_list, n=1, cutoff=0.20
+    )  # Ajuste o cutoff conforme necessário
+    return matches[0] if matches else None
+
+
+st.title("Fechamento - Mão de Obra")
+
+url_valores = "https://docs.google.com/spreadsheets/d/1JkafGyVeOQjCvMmePSfrgW3rSrTs6bzcL01G1Spge4s/export?format=csv&gid=2104680401#gid=2104680401"
+
+df_valores = pd.read_csv(url_valores)
+df_valores["MO"] = df_valores["MO"].str.title()
 
 url_inicio = "https://docs.google.com/spreadsheets/d/1cGeQrjvsnuj9K1S_uPrYwxDKnUoyHnQEvFJjttU4Pcw/"
 url_fim = "gid=887283048#gid=887283048"
@@ -12,53 +24,59 @@ url = f"{url_inicio}export?format=csv&{url_fim}"
 
 df = pd.read_csv(url)
 df["MAXHOME"] = df["MAXHOME"].str.title()
-df["Observações"] = df["Observações"].fillna(0).astype(int)
-df["Observações"] = df["Observações"].astype(int)
-
-df_selecionado = df[df["Observações"] == 107]
-
-
-# --------------------- filtro para quinzena ----------------
-# opcoes = df["Observações"].unique()
-# opcao_selecionada = st.sidebar.selectbox(label="Quinzena", options=opcoes)
-# df_selecionado = df[df["Observações"] == 'opcao_selecionada']
-# --------------------- filtro para quinzena ----------------
-
-# --------------------- filtro para mao de obra ----------------
-col1, col2, col3, col4, col5, col6, col7 = st.columns(7)
-
-mo_quinzena = df_selecionado["MAXHOME"].unique().tolist()
-mo_quinzena = sorted(mo_quinzena)
-
-mo_selecionada = col1.selectbox(label="Mão de Obra", options=mo_quinzena)
-
-df_final = df_selecionado[df_selecionado["MAXHOME"] == mo_selecionada]
-# --------------------- filtro para mao de obra ----------------
-# mo_selecionada = "Maxhome"
-
-df_final = df_selecionado[df_selecionado["MAXHOME"] == mo_selecionada]
-
-df_final = df_final.drop(
+df = df.drop(
     columns=[
         "Descrição do produto",
-        "MAXHOME",
         "Destino",
         "% Completude",
         "Dias na MO",
         "Setor de finalização",
         "Preço unitário",
         "Concluído",
-        "Observações",
     ]
 )
 
-df_final = df_final.set_index("Data da notinha")
+df["Observações"] = df["Observações"].fillna(0).astype(int)
 
-total = df_final["Quantidade"].sum()
+# ---------------- FILTRO 1 - Quinzena -------------
+
+filtro1 = df["Observações"] == 107
+
+df = df[filtro1]
+
+# ---------------- FILTRO 2 - Mao de obra -------------
+col1, col2, col3 = st.columns(3)
+
+mo_quinzena = df["MAXHOME"].unique().tolist()
+mo_quinzena = sorted(mo_quinzena)
+mo_selecionada = col1.selectbox(label="Mão de Obra", options=mo_quinzena)
+
+filtro2 = df["MAXHOME"] == mo_selecionada
+
+df = df[filtro2]
+
+filtro3 = df_valores["MO"] == mo_selecionada
+df_valores = df_valores[filtro3]
+
+df["Sku_mapeado"] = df["Código (SKU) "].apply(
+    lambda x: find_closest_sku(x, df_valores["SKU"])
+)
+
+df = df.merge(
+    right=df_valores,
+    left_on=["Sku_mapeado"],
+    right_on=["SKU"],
+    how="left",
+    suffixes=["Producao", "Valores"],
+)
+
+df = df.drop(columns=["MAXHOME", "Observações", "Sku_mapeado", "SKU", "MO"])
+df["VALOR"] = df["VALOR"].str.replace(",", ".").astype(float)
+
+df["Total"] = df["Quantidade"] * df["VALOR"]
 
 
-st.text(f"Quantidade total produzida: {total}")
+total = df["Total"].sum()
+st.text(f"R$ {round(total, 2)}")
 
-df_final = df_final[["Número da nota", "Requisição", "Código (SKU) ", "Quantidade"]]
-
-st.dataframe(df_final)
+st.dataframe(df)
