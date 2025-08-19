@@ -76,9 +76,11 @@ df["VALOR"] = df["VALOR"].str.replace(",", ".").astype(float)
 
 df["Total"] = df["Quantidade"] * df["VALOR"]
 
+quantidade_total = df["Quantidade"].sum()
 
 total = df["Total"].sum()
 col2.metric(label="Total", value=f"R$ {total:.2f}")
+col3.metric(label="Total", value=quantidade_total)
 
 df.columns = ["Data", "Requisição", "SKU", "Quantidade", "Pedido", "Valor", "Total"]
 ordem_colunas = ["Data", "Pedido", "Requisição", "SKU", "Quantidade", "Valor", "Total"]
