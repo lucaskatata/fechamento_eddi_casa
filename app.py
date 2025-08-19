@@ -76,6 +76,8 @@ df["VALOR"] = df["VALOR"].str.replace(",", ".").astype(float)
 
 df["Total"] = df["Quantidade"] * df["VALOR"]
 
+df["Valor"] = df["Valor"].str.replace(".", ",")
+
 quantidade_total = df["Quantidade"].sum()
 
 total = df["Total"].sum()
