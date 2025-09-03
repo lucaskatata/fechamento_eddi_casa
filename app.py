@@ -91,8 +91,10 @@ columns_config = {
     "Valor": st.column_config.NumberColumn("Valor", format="R$ %.2f"),
     "Total": st.column_config.NumberColumn("Total", format="R$ %.2f"),
 }
+df["Valor"] = df["Valor"].astype(str).str.replace(".", ",")
+df["Total"]
+
+df["Total"] = df["Total"].round(2)
+df["Total"] = df["Total"].astype(str).str.replace(".", ",")
 
 st.dataframe(df, column_config=columns_config)
-
-# %%
-print(f"{total:.2f}")
