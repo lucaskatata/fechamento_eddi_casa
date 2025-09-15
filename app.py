@@ -41,7 +41,7 @@ df["Observações"] = df["Observações"].fillna(0).astype(int)
 
 # ---------------- FILTRO 1 - Quinzena -------------
 
-filtro1 = df["Observações"] == 208
+filtro1 = df["Observações"] == 109
 
 df = df[filtro1]
 
