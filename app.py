@@ -3,7 +3,6 @@ from difflib import get_close_matches
 import pandas as pd
 import streamlit as st
 
-
 def find_closest_sku(sku, sku_list):
     matches = get_close_matches(
         sku, sku_list, n=1, cutoff=0.20
@@ -41,16 +40,22 @@ df["Observações"] = df["Observações"].fillna(0).astype(int)
 
 # ---------------- FILTRO 1 - Quinzena -------------
 
-filtro1 = df["Observações"] == 109
+col1, col2, col3, col4 = st.columns(4)
 
-df = df[filtro1]
+lista_quinzenas = df['Observações'].unique().tolist()
+lista_quinzenas.remove(0)
+lista_organizada = lista_quinzenas[::-1]
+filtro1 = col1.selectbox(label='Quinzena (1 - Primeira, 2- Segunda Quinzena)', options=lista_organizada)
+
+filtro_quinzena = df["Observações"] == filtro1
+
+df = df[filtro_quinzena]
 
 # ---------------- FILTRO 2 - Mao de obra -------------
-col1, col2, col3, col4 = st.columns(4)
 
 mo_quinzena = df["MAXHOME"].unique().tolist()
 mo_quinzena = sorted(mo_quinzena)
-mo_selecionada = col1.selectbox(label="Mão de Obra", options=mo_quinzena)
+mo_selecionada = col2.selectbox(label="Mão de Obra", options=mo_quinzena)
 
 filtro2 = df["MAXHOME"] == mo_selecionada
 
@@ -79,8 +84,8 @@ df["Total"] = df["Quantidade"] * df["VALOR"]
 quantidade_total = df["Quantidade"].sum()
 
 total = df["Total"].sum()
-col2.metric(label="Valor", value=f"R$ {total:.2f}")
-col3.metric(label="Quantidade entregue", value=quantidade_total)
+col3.metric(label="Valor", value=f"R$ {total:.2f}")
+col4.metric(label="Quantidade entregue", value=quantidade_total)
 
 df.columns = ["Data", "Requisição", "SKU", "Quantidade", "Pedido", "Valor", "Total"]
 ordem_colunas = ["Data", "Pedido", "Requisição", "SKU", "Quantidade", "Valor", "Total"]
