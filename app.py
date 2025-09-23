@@ -3,6 +3,34 @@ from difflib import get_close_matches
 import pandas as pd
 import streamlit as st
 
+dic_quinzena = {
+    '1': 'Primeira Quinzena',
+    '2': 'Segunda Quinzena'
+}
+dic_mes = {
+    '01': 'Janeiro',
+    '02': 'Fevereiro',
+    '03': 'Março',
+    '04': 'Abril',
+    '05': 'Maio',
+    '06': 'Junho',
+    '07': 'Julho',
+    '08': 'Agosto',
+    '09': 'Setembro',
+    '10': 'Outubro',
+    '11': 'Novembro',
+    '12': 'Dezembro'
+}
+
+def cria_quinzena(a):
+    if a == 0:
+        return 0
+    else:
+        quinzena = str(a)[0]
+        mes = str(a)[1:]
+        nome_quinzena = f'{dic_quinzena[quinzena]} de {dic_mes[mes]}'
+        return nome_quinzena
+
 def find_closest_sku(sku, sku_list):
     matches = get_close_matches(
         sku, sku_list, n=1, cutoff=0.20
@@ -10,7 +38,7 @@ def find_closest_sku(sku, sku_list):
     return matches[0] if matches else None
 
 
-st.set_page_config(layout="wide", page_title="Fechamento Eddi Casa", page_icon="💵")
+st.set_page_config(layout="wide")
 st.title("Fechamento - Mão de Obra")
 
 url_valores = "https://docs.google.com/spreadsheets/d/1JkafGyVeOQjCvMmePSfrgW3rSrTs6bzcL01G1Spge4s/export?format=csv&gid=2104680401#gid=2104680401"
@@ -42,12 +70,14 @@ df["Observações"] = df["Observações"].fillna(0).astype(int)
 
 col1, col2, col3, col4 = st.columns(4)
 
-lista_quinzenas = df['Observações'].unique().tolist()
+df['Nome Quinzena'] = df['Observações'].apply(cria_quinzena)
+
+lista_quinzenas = df['Nome Quinzena'].unique().tolist()
 lista_quinzenas.remove(0)
 lista_organizada = lista_quinzenas[::-1]
-filtro1 = col1.selectbox(label='Quinzena (1 - Primeira, 2- Segunda Quinzena)', options=lista_organizada)
+filtro1 = col1.selectbox(label='Quinzena', options=lista_organizada)
 
-filtro_quinzena = df["Observações"] == filtro1
+filtro_quinzena = df["Nome Quinzena"] == filtro1
 
 df = df[filtro_quinzena]
 
@@ -76,7 +106,7 @@ df = df.merge(
     suffixes=["Producao", "Valores"],
 )
 
-df = df.drop(columns=["MAXHOME", "Observações", "Sku_mapeado", "SKU", "MO"])
+df = df.drop(columns=["MAXHOME", "Observações","Nome Quinzena", "Sku_mapeado", "SKU", "MO"])
 df["VALOR"] = df["VALOR"].str.replace(",", ".").astype(float)
 
 df["Total"] = df["Quantidade"] * df["VALOR"]
@@ -97,4 +127,6 @@ columns_config = {
     "Total": st.column_config.NumberColumn("Total", format="R$ %.2f"),
 }
 
-st.dataframe(df, column_config=columns_config)
+# st.dataframe(df, column_config=columns_config)
+
+st.dataframe(df)
