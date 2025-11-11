@@ -157,13 +157,6 @@ if st.button('Clique aqui para baixar'):
             cell.alignment = Alignment(horizontal="center", vertical="center")
 
     wb.save(file_path)
-    print("✅ Formatação aplicada: centralizado!")
-
-
 
 st.dataframe(df, column_config=columns_config)
 
-# %%
-print(mo_selecionada)
-
-print(filtro1)
