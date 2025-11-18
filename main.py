@@ -1,10 +1,11 @@
 # %%
 from difflib import get_close_matches
-import pandas as pd
-import streamlit as st
+from io import BytesIO
 from openpyxl import load_workbook
 from openpyxl import load_workbook
 from openpyxl.styles import Alignment
+import pandas as pd
+import streamlit as st
 
 
 dic_quinzena = {
@@ -132,31 +133,36 @@ columns_config = {
     "Total": st.column_config.NumberColumn("Total", format="R$ %.2f"),
 }
 
-if st.button('Clique aqui para baixar'):
-    file = 'fechamento.xlsx'
-    wb = load_workbook(file)
-    ws = wb.active
-    ws['c2'] = filtro1
-    ws['c3'] = mo_selecionada
-    novo_arquivo = f'{filtro1} - {mo_selecionada}.xlsx'
-    wb.save(novo_arquivo)
 
-    with pd.ExcelWriter(novo_arquivo, engine='openpyxl', mode='a', if_sheet_exists='overlay') as writer: 
-        df1.to_excel(writer, startrow=5, startcol=0, index=False, header=False)
+file = 'fechamento.xlsx'
+wb = load_workbook(file)
+ws = wb.active
 
-    file_path = novo_arquivo
-    sheet_name = "Sheet1"  # Troque pelo nome da sua aba!
-    wb = load_workbook(file_path)
-    ws = wb[sheet_name]
-    # Descobrir o range existente
-    max_row = ws.max_row
-    max_col = ws.max_column
-    start_row = 6
-    for row in ws.iter_rows(min_row=start_row, max_row=max_row, min_col=1, max_col=max_col):
-        for cell in row:
-            cell.alignment = Alignment(horizontal="center", vertical="center")
+# Escreve nas células
+ws['C2'] = filtro1
+ws['C3'] = mo_selecionada
 
-    wb.save(file_path)
+# Salva o workbook no buffer
+output = BytesIO()
+wb.save(output)
 
+df = df.reset_index(drop=False)
+
+# Reabrir o arquivo salvo no buffer para adicionar o df
+output.seek(0)
+with pd.ExcelWriter(output, engine="openpyxl", mode="a", if_sheet_exists="overlay") as writer:
+    df.to_excel(writer, startrow=5, startcol=0, index=False, header=False)
+
+# Voltar para o início antes do download
+output.seek(0)
+
+# Botão de download
+st.download_button(
+    label='📥 Baixar fechamento',
+    data=output,
+    file_name=f'Fechamento {filtro1} - {mo_selecionada}.xlsx',
+    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+)
+
+df = df.set_index(df["Data"]).drop(columns="Data")
 st.dataframe(df, column_config=columns_config)
-
